@@ -1,0 +1,221 @@
+:root {
+  --bg: #0b1220;
+  --card: rgba(255, 255, 255, 0.08);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --text: #f3f4f6;
+  --muted: rgba(255, 255, 255, 0.7);
+  --accent: #6f7ce1;
+  --danger: #ff5a5f;
+  --radius: 12px;
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #1c2464, #070914 55%, #05060b 100%);
+  color: var(--text);
+}
+
+.App {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.App h1 {
+  font-size: 2.6rem;
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.tagline {
+  margin: 10px 0 32px;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+}
+
+.formRow {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+
+.formRow label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: var(--muted);
+  flex: 1 1 180px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 10px 12px;
+  color: var(--text);
+  outline: none;
+  font-family: inherit;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button {
+  border: none;
+  background: linear-gradient(135deg, var(--accent), #81c7ff);
+  color: #0b1220;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.buttonRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.entries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.entryCard {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.entryMeta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.badge.emotion {
+  background: rgba(111, 124, 225, 0.25);
+  color: #e0e8ff;
+}
+
+.entryText {
+  line-height: 1.45;
+  word-break: break-word;
+  min-height: 44px;
+}
+
+.entryActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.insightItem {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: left;
+}
+
+.insightLabel {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.insightValue {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.empty {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.toast {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 10px 18px;
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.55);
+}
+
+.loading {
+  text-align: center;
+  margin: 18px 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+}
+
+.footer {
+  margin-top: 28px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+}
