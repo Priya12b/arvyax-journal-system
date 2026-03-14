@@ -11,7 +11,7 @@ function App() {
   const [analysisResult, setAnalysisResult] = useState(null); 
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
   const notify = (message) => {
     setStatus(message);
     setTimeout(() => setStatus(''), 3000);
@@ -24,7 +24,7 @@ function App() {
     }
     setLoading(true);
     try {
-      await axios.post('http://localhost:8000/api/journal', { userId, ambience, text });
+      await axios.post(`${API_BASE_URL}/api/journal`, { userId, ambience, text });
       setText('');
       notify('Entry saved successfully!');
       loadEntries();
@@ -38,7 +38,7 @@ function App() {
   const loadEntries = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8000/api/journal/${userId}`);
+      const res = await axios.get(`${API_BASE_URL}/api/journal/${userId}`);
       setEntries(res.data);
     } catch (err) {
       notify('Failed to load history');
@@ -51,7 +51,7 @@ function App() {
     setLoading(true);
     setAnalysisResult(null);
     try {
-      const res = await axios.post('http://localhost:8000/api/journal/analyze', {
+      const res = await axios.post(`${API_BASE_URL}/api/journal/analyze`, {
         entryId,
         text: entryText,
       });
@@ -67,7 +67,7 @@ function App() {
   const loadInsights = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:8000/api/journal/insights/${userId}`);
+      const res = await axios.get(`${API_BASE_URL}/api/journal/insights/${userId}`);
       setInsights(res.data);
     } catch (err) {
       notify('Failed to load insights');
