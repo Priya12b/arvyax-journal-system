@@ -2,16 +2,23 @@ import os
 import json
 import sqlite3
 import requests
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI,Request, HTTPException
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from pydantic import BaseModel
 from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from collections import Counter
+from services.cache_service import get_cached_analysis, set_cached_analysis
 
 load_dotenv()
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,7 +45,8 @@ class JournalEntry(BaseModel):
     text: str
 
 @app.post("/api/journal")
-async def create_entry(entry: JournalEntry):
+@limiter.limit("30/minute")
+async def create_entry(request: Request, entry: JournalEntry):
     conn = sqlite3.connect("journal.db")
     curr = conn.cursor()
     curr.execute("INSERT INTO entries (userId, ambience, text) VALUES (?, ?, ?)", 
@@ -49,7 +57,8 @@ async def create_entry(entry: JournalEntry):
     return {"id": entry_id, "status": "success"}
 
 @app.get("/api/journal/{userId}")
-async def get_entries(userId: str):
+@limiter.limit("60/minute")
+async def get_entries(request: Request, userId: str):
     conn = sqlite3.connect("journal.db")
     curr = conn.cursor()
     curr.execute("SELECT ambience, text, emotion FROM entries WHERE userId=?", (userId,))
@@ -58,12 +67,16 @@ async def get_entries(userId: str):
     return [{"ambience": r[0], "text": r[1], "emotion": r[2]} for r in rows]
 
 @app.post("/api/journal/analyze")
-async def analyze_emotion(data: dict):
+@limiter.limit("10/minute")
+async def analyze_emotion(request: Request, data: dict):
     entry_id = data.get("entryId")  
     text = data.get("text", "")
     api_key = os.getenv("GEMINI_API_KEY")
 
-    if not api_key:
+    cached_result = get_cached_analysis(text)
+    if cached_result:
+        parsed_result = cached_result
+    elif not api_key:
         parsed_result = {"emotion": "Calm", "keywords": ["nature", "peace"], "summary": "User feels a sense of relaxation."}
     else:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
@@ -72,15 +85,15 @@ async def analyze_emotion(data: dict):
                 "parts": [{"text": f"Analyze the emotion of this journal entry: '{text}'. Return ONLY a JSON object with keys 'emotion' (string), 'keywords' (list), and 'summary' (string). Do not include markdown formatting."}]
             }]
         }
-        
+
         try:
             response = requests.post(url, json=payload, timeout=10)
             result = response.json()
-            
+
             raw_text = result['candidates'][0]['content']['parts'][0]['text']
-            
+
             clean_json = raw_text.replace("```json", "").replace("```", "").strip()
-            
+
             parsed_result = json.loads(clean_json)
         except Exception as e:
             print(f"Detailed Error: {e}")
@@ -89,6 +102,8 @@ async def analyze_emotion(data: dict):
                 "keywords": ["journal", "thoughtful"], 
                 "summary": "The system processed the entry and noted a reflective state."
             }
+
+    set_cached_analysis(text, parsed_result)
     
     conn = sqlite3.connect("journal.db")
     curr = conn.cursor()
@@ -100,7 +115,8 @@ async def analyze_emotion(data: dict):
     return parsed_result
     
 @app.get("/api/journal/insights/{userId}")
-async def get_insights(userId: str):
+@limiter.limit("30/minute")
+async def get_insights(request: Request, userId: str):
     conn = sqlite3.connect("journal.db")
     curr = conn.cursor()
     curr.execute("SELECT ambience, emotion, keywords FROM entries WHERE userId=?", (userId,))

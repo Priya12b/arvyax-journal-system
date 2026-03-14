@@ -219,3 +219,14 @@ button:not(:disabled):hover {
   color: rgba(255, 255, 255, 0.65);
   font-size: 0.85rem;
 }
+select {
+  background-color: #1e2235;
+  color: white;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+select option {
+  background-color: white;
+  color: black;
+}
